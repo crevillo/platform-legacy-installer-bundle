@@ -13,23 +13,11 @@ use EzSystems\PlatformInstallerBundle\Installer\Installer;
 
 class LegacyCleanInstaller extends CleanInstaller implements Installer
 {
-    public function createConfiguration()
-    {
-    }
-
-    public function importSchema()
-    {
-    }
-
     public function importData()
     {
         parent::importData();
         $this->runQueriesFromFile(
             'vendor/crevillo/ezplatform-legacy-installer-bundle/data/legacy-cleandata.sql'
         );
-    }
-
-    public function importBinaries()
-    {
     }
 }
