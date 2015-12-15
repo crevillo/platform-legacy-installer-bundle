@@ -1,0 +1,11 @@
+parameters:
+    ezplatform.legacy.installer.clean_installer.class: Crevillo\PlatformLegacyInstallerBundle\Installer\LegacyCleanInstaller
+
+services:
+    ezplatform.legacy.installer.clean_installer:
+        class: %ezplatform.legacy.installer.clean_installer.class%
+        parent: ezplatform.installer.db_based_installer
+        tags:
+            - {name: ezplatform.installer, type: legacy_clean}
+
+

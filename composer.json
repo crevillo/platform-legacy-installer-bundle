@@ -1,0 +1,16 @@
+{
+    "name": "crevillo/platform-legacy-installer",
+    "description": "eZ Platform Legacy installer",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Carlos Revillo",
+            "email": "crevillo@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "psr-4": { "Crevillo\\PlatformLegacyInstaller\\": "src/" }
+    }
+}
