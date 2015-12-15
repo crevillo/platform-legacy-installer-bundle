@@ -4,7 +4,7 @@ parameters:
 services:
     ezplatform.legacy.installer.clean_installer:
         class: %ezplatform.legacy.installer.clean_installer.class%
-        parent: ezplatform.installer.db_based_installer
+        parent: ezplatform.installer.clean_installer
         tags:
             - {name: ezplatform.installer, type: legacy_clean}
 

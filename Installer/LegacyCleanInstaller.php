@@ -8,10 +8,10 @@
  */
 namespace Crevillo\PlatformLegacyInstallerBundle\Installer;
 
-use EzSystems\PlatformInstallerBundle\Installer\DbBasedInstaller;
+use EzSystems\PlatformInstallerBundle\Installer\CleanInstaller;
 use EzSystems\PlatformInstallerBundle\Installer\Installer;
 
-class LegacyCleanInstaller extends DbBasedInstaller implements Installer
+class LegacyCleanInstaller extends CleanInstaller implements Installer
 {
     public function createConfiguration()
     {
@@ -23,6 +23,7 @@ class LegacyCleanInstaller extends DbBasedInstaller implements Installer
 
     public function importData()
     {
+        parent::importData();
         $this->runQueriesFromFile(
             'vendor/crevillo/ezplatform-legacy-installer-bundle/data/legacy-cleandata.sql'
         );
