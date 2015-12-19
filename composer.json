@@ -9,7 +9,6 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {},
     "autoload": {
         "psr-4": { "Crevillo\\PlatformLegacyInstallerBundle\\": "src/" }
     }
