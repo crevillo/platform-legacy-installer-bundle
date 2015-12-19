@@ -1,37 +1,31 @@
 <?php
 
-/**
- * File containing the ScriptHandler class.
- *
- * @copyright Copyright (C) eZ Systems AS. All rights reserved.
- * @license For full copyright and license information view LICENSE file distributed with this source code.
- *
- * @version //autogentag//
- */
 namespace Crevillo\PlatformLegacyInstallerBundle\Composer;
 
-use Sensio\Bundle\DistributionBundle\Composer\ScriptHandler as DistributionBundleScriptHandler;
-use Composer\Script\CommandEvent;
+use Composer\Script\Event;
 
-class ScriptHandler extends DistributionBundleScriptHandler
+class ScriptHandler
 {
-    /**
-     * Just dump welcome text on how to install eZ Platform with Legacy.
-     *
-     * @param $event CommandEvent A instance
-     */
-    public static function installWelcomeText(CommandEvent $event)
+    public static function buildLegacyParameters(Event $event)
     {
-        $event->getIO()->write(<<<'EOT'
+        $extras = $event->getComposer()->getPackage()->getExtra();
 
-<fg=cyan>Welcome to eZ Platform with Legacy!</fg=cyan>
+        if (!isset($extras['ezpublish-legacy-parameters-files'])) {
+            throw new \InvalidArgumentException('The parameter handler needs to be configured through the extra.ezpublish-legacy-parameters-files setting.');
+        }
 
-<options=bold>Please read the INSTALL.md file to complete the installation.</options>
+        $legacyConfigFiles = $extras['ezpublish-legacy-parameters-files'];
 
-<options=bold>Assuming that your database information were correctly entered, you may install a clean database by running the install command:</options>
-<comment>    $ php app/console --env=prod ezplatform:install legacy_clean</comment>
+        if (!is_array($legacyConfigFiles)) {
+            throw new \InvalidArgumentException('The extra.ezpublish-legacy-parameters-files setting must be an array.');
+        }
 
-EOT
-        );
+        if (array_keys($legacyConfigFiles) !== range(0, count($legacyConfigFiles) - 1)) {
+            $legacyConfigFiles = array($legacyConfigFiles);
+        }
+
+        $processor = new Processor($event->getIO());
+
+        $processor->buildLegacyParametersFiles();
     }
 }
