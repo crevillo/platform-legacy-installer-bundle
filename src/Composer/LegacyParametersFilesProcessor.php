@@ -62,7 +62,7 @@ class LegacyParametersFilesProcessor
      */
     private function processSiteFile(array $values)
     {
-        $databaseSettings = array(
+        $settings = array(
             'DatabaseSettings' => array(
                 'DatabaseImplementation' => 'ezmysqli',
                 'Server' => $values['database_host'],
@@ -70,12 +70,27 @@ class LegacyParametersFilesProcessor
                 'User' => $values['database_user'],
                 'Password' => $values['database_password'],
                 'DatabaseName' => $values['database_name']
+            ),
+            'SiteSettings' => array(
+                'SiteList[]' => 'site_admin'
+            ),
+            'ExtensionSettings' => array(
+                'ActiveExtensions[]' => 'ezjscore'
+            ),
+            'SiteAccessSettings' => array(
+                'CheckValidity' => 'false',
+                'AvailableSiteAccessList[]' => 'site_admin',
+                'MatchOrder' => 'uri;host'
+            ),
+            'DesignSettings' => array(
+                'SiteDesign' => 'admin',
+                'AdditionalSiteDesignList[]' => 'standard'
             )
         );
 
         $siteFileContents = "<?php /*\n";
         $siteFileContents .= "# This file is auto-generated during the composer install\n";
-        $siteFileContents .= $this->transformValuesToIniFormat($databaseSettings);
+        $siteFileContents .= $this->transformValuesToIniFormat($settings);
 
         $this->dumpSettingsToFile('site', $siteFileContents);
     }
@@ -89,14 +104,15 @@ class LegacyParametersFilesProcessor
             foreach ($settings as $key => $value) {
                 if (is_array($value)) {
                     for ($i = 0; $i < count($value); $i++) {
-                        $content .= $key . "[] = " . $value[$i] . "\n";
+                        $content .= $key . "[]=" . $value[$i] . "\n";
                     }
                 }
                 elseif ($value == "") {
-                    $content .= $key . " = \n";
+                    $content .= $key . "=\n";
                 }
-                else $content .= $key . " = " . $value . "\n";
+                else $content .= $key . "=" . $value . "\n";
             }
+            $content .= "\n";
         }
 
         return $content;
