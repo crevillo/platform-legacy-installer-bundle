@@ -6,22 +6,18 @@ use Composer\Script\Event;
 
 class ScriptHandler
 {
-    public static function buildLegacyParameters(Event $event)
+    public static function createLegacyOverrideFiles(Event $event)
     {
         $extras = $event->getComposer()->getPackage()->getExtra();
 
-        if (!isset($extras['ezpublish-legacy-parameters-files'])) {
-            throw new \InvalidArgumentException('The parameter handler needs to be configured through the extra.ezpublish-legacy-parameters-files setting.');
+        if (!isset($extras['legacy-settings-site-parameters'])) {
+            throw new \InvalidArgumentException('The parameter handler needs to be configured through the extra.legacy-settings-site-parameters setting.');
         }
 
-        $legacyConfigFiles = $extras['ezpublish-legacy-parameters-files'];
+        $legacyConfigFiles = $extras['legacy-settings-site-parameters'];
 
         if (!is_array($legacyConfigFiles)) {
-            throw new \InvalidArgumentException('The extra.ezpublish-legacy-parameters-files setting must be an array.');
-        }
-
-        if (array_keys($legacyConfigFiles) !== range(0, count($legacyConfigFiles) - 1)) {
-            $legacyConfigFiles = array($legacyConfigFiles);
+            throw new \InvalidArgumentException('The extra.legacy-settings-site-parameters setting must be an array.');
         }
 
         $processor = new Processor($event->getIO());
