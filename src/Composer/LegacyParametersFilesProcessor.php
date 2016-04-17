@@ -35,6 +35,7 @@ class LegacyParametersFilesProcessor
         $this->createContentStructureMenuFile();
         $this->processSiteAdminFile($values);
         $this->processToolbarAdminFile($values);
+        $this->createIconAdminFile();
     }
 
     /**
@@ -229,6 +230,26 @@ class LegacyParametersFilesProcessor
         $toolbarFileContents .= $this->transformValuesToIniFormat($settings);
 
         $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/toolbar', $toolbarFileContents);
+    }
+
+    /**
+     * Creates settings/%admin_siteaccess%/icon.ini.append.php
+     */
+    private function createIconAdminFile()
+    {
+        $settings = array(
+            'IconSettings' => array(
+                'Theme' => 'crystal-admin',
+                'Size' => 'normal'
+            )
+        );
+
+        $iconFileContents = "<?php /*\n";
+        $iconFileContents .= "# This file is auto-generated during the composer install\n";
+        $iconFileContents .= $this->transformValuesToIniFormat($settings);
+
+        $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/toolbar', $iconFileContents);
+
     }
 
 
