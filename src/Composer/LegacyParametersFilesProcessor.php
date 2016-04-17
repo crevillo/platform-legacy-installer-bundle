@@ -35,7 +35,7 @@ class LegacyParametersFilesProcessor
         $this->createContentStructureMenuFile();
         $this->processSiteAdminFile($values);
         $this->processToolbarAdminFile($values);
-        $this->createIconAdminFile();
+        $this->createIconAdminFile($values);
     }
 
     /**
@@ -235,7 +235,7 @@ class LegacyParametersFilesProcessor
     /**
      * Creates settings/%admin_siteaccess%/icon.ini.append.php
      */
-    private function createIconAdminFile()
+    private function createIconAdminFile($values)
     {
         $settings = array(
             'IconSettings' => array(
@@ -248,7 +248,7 @@ class LegacyParametersFilesProcessor
         $iconFileContents .= "# This file is auto-generated during the composer install\n";
         $iconFileContents .= $this->transformValuesToIniFormat($settings);
 
-        $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/toolbar', $iconFileContents);
+        $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/icon', $iconFileContents);
 
     }
 
