@@ -32,7 +32,9 @@ class LegacyParametersFilesProcessor
     public function processFiles(array $values)
     {
         $this->processSiteFile($values);
+        $this->createContentStructureMenuFile();
         $this->processSiteAdminFile($values);
+        $this->processToolbarAdminFile($values);
     }
 
     /**
@@ -84,7 +86,10 @@ class LegacyParametersFilesProcessor
                 )
             ),
             'ExtensionSettings' => array(
-                'ActiveExtensions' => array('ezjscore')
+                'ActiveExtensions' => array(
+                    'ezjscore',
+                    'ezflow'
+                )
             ),
             'SiteAccessSettings' => array(
                 'CheckValidity' => 'false',
@@ -106,6 +111,30 @@ class LegacyParametersFilesProcessor
         $this->dumpSettingsToFile('override/site', $siteFileContents);
     }
 
+    /**
+     * Creates the content structure menu ini file so treemenu is enabled
+     * by default
+     */
+    private function createContentStructureMenuFile()
+    {
+        $settings = array(
+            'TreeMenu' => array(
+                'Dynamic' => 'enabled'
+            )
+        );
+
+        $siteFileContents = "<?php /*\n";
+        $siteFileContents .= "# This file is auto-generated during the composer install\n";
+        $siteFileContents .= $this->transformValuesToIniFormat($settings);
+
+        $this->dumpSettingsToFile('override/contentstructuremenu', $siteFileContents);
+    }
+
+    /**
+     * Creates settings/[%admin_siteaccess%]/site.ini.append.php
+     *
+     * @param array $values
+     */
     private function processSiteAdminFile(array $values)
     {
         $settings = array(
@@ -146,6 +175,63 @@ class LegacyParametersFilesProcessor
         $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/site', $siteFileContents);
     }
 
+    /**
+     * Creates settings/[%admin_siteaccess%]/toolbar.ini.append.php
+     *
+     * @param array $values
+     */
+    private function processToolbarAdminFile(array $values)
+    {
+        $settings = array(
+            'Toolbar' => array(
+                'AvailableToolBarArray' => array(
+                    null,
+                    'setup',
+                    'admin_right',
+                    'admin_developer'
+                )
+            ),
+            'Tool' => array(
+                'AvailableToolArray' => array(
+                    null,
+                    'setup_link',
+                    'admin_current_user',
+                    'admin_bookmarks',
+                    'admin_clear_cache',
+                    'admin_quick_settings'
+                )
+            ),
+            'Toolbar_setup' => array(
+                'Tool' => array(
+                    null,
+                    'setup_link'
+                )
+            ),
+            'Toolbar_admin_right' => array(
+                'Tool' => array(
+                    null,
+                    'admin_current_user',
+                    'admin_preferences',
+                    'admin_bookmarks'
+                )
+            ),
+            'Toolbar_admin_developer' => array(
+                'Tool' => array(
+                    null,
+                    'admin_clear_cache',
+                    'admin_quick_settings'
+                )
+            )
+        );
+
+        $toolbarFileContents = "<?php /*\n";
+        $toolbarFileContents .= "# This file is auto-generated during the composer install\n";
+        $toolbarFileContents .= $this->transformValuesToIniFormat($settings);
+
+        $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/toolbar', $toolbarFileContents);
+    }
+
+
     private function transformValuesToIniFormat($parameters)
     {
         $content = '';
@@ -155,7 +241,10 @@ class LegacyParametersFilesProcessor
             foreach ($settings as $key => $value) {
                 if (is_array($value)) {
                     foreach ($value as $subkey => $subvalue) {
-                        if(is_numeric($subkey)) {
+                        if (is_null($subvalue)) {
+                            $content .= $key . "[]\n";
+                        }
+                        elseif (is_numeric($subkey)) {
                             $content .= $key . "[]=" . $subvalue . "\n";
                         }
                         else {
