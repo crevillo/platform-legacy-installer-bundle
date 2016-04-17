@@ -9,10 +9,11 @@
 namespace Crevillo\PlatformLegacyInstallerBundle\Composer;
 
 use Composer\IO\IOInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class LegacyParametersFilesProcessor
 {
-    const LEGACY_PARAMETERS_FOLDER = 'ezpublish_legacy/settings/override';
+    const LEGACY_PARAMETERS_FOLDER = 'ezpublish_legacy/settings';
 
     const LEGACY_PARAMETERS_FILES_SUFFIX = '.ini.append.php';
 
@@ -31,6 +32,7 @@ class LegacyParametersFilesProcessor
     public function processFiles(array $values)
     {
         $this->processSiteFile($values);
+        $this->processSiteAdminFile($values);
     }
 
     /**
@@ -47,11 +49,14 @@ class LegacyParametersFilesProcessor
         $action = $exists ? 'Updating' : 'Creating';
         $this->io->write(sprintf('<info>%s the "%s" file</info>', $action, $realFile));
 
-        if (!is_dir($dir = dirname($realFile))) {
-            mkdir($dir, 0755, true);
+        $fs = new Filesystem();
+        $dir = dirname($realFile);
+
+        if (!$fs->exists($dir)) {
+            $fs->mkdir($dir, 0755);
         }
 
-        file_put_contents($realFile, $contents);
+        $fs->dumpFile($realFile, $contents);
     }
 
     /**
@@ -72,19 +77,25 @@ class LegacyParametersFilesProcessor
                 'DatabaseName' => $values['database_name']
             ),
             'SiteSettings' => array(
-                'SiteList[]' => 'site_admin'
+                'DefaultAccess' => 'www',
+                'SiteList' => array(
+                    $values['frontend_siteaccess'],
+                    $values['admin_siteaccess']
+                )
             ),
             'ExtensionSettings' => array(
-                'ActiveExtensions[]' => 'ezjscore'
+                'ActiveExtensions' => array('ezjscore')
             ),
             'SiteAccessSettings' => array(
                 'CheckValidity' => 'false',
-                'AvailableSiteAccessList[]' => 'site_admin',
-                'MatchOrder' => 'uri;host'
+                'AvailableSiteAccessList' => array(
+                    $values['frontend_siteaccess'],
+                    $values['admin_siteaccess']
+                ),
+                'MatchOrder' => 'uri'
             ),
             'DesignSettings' => array(
-                'SiteDesign' => 'admin',
-                'AdditionalSiteDesignList[]' => 'standard'
+                'DesignLocationCache' => 'enabled'
             )
         );
 
@@ -92,7 +103,47 @@ class LegacyParametersFilesProcessor
         $siteFileContents .= "# This file is auto-generated during the composer install\n";
         $siteFileContents .= $this->transformValuesToIniFormat($settings);
 
-        $this->dumpSettingsToFile('site', $siteFileContents);
+        $this->dumpSettingsToFile('override/site', $siteFileContents);
+    }
+
+    private function processSiteAdminFile(array $values)
+    {
+        $settings = array(
+            'SiteSettings' => array(
+                'DefaultPage' => 'content/dashboard',
+                'LoginPage' => 'custom'
+            ),
+            'SiteAccessSettings' => array(
+                'RequireUserLogin' => 'true',
+                'RelatedSiteAccessList' => array(
+                    $values['frontend_siteaccess'],
+                    $values['admin_siteaccess']
+                ),
+                'ShowHiddenNodes' => 'true'
+            ),
+            'DesignSettings' => array(
+                'SiteDesign' => $values['admin_siteaccess'],
+                'AdditionalSiteDesignList' => array('admin')
+            ),
+            'RegionalSettings' => array(
+                'Locale' => 'esl-ES',
+                'ContentObjectLocale' => 'esl-ES',
+                'ShowUntranslatedObjects' => 'esl-ES',
+                'SiteLanguageList' => array('esl-ES'),
+                'TextTranslation' => 'enabled'
+            ),
+            'ContentSettings' => array(
+                'CachedViewPreferences' => array(
+                    'full' => 'admin_navigation_content=1;admin_children_viewmode=list;admin_list_limit=1'
+                )
+            )
+        );
+
+        $siteFileContents = "<?php /*\n";
+        $siteFileContents .= "# This file is auto-generated during the composer install\n";
+        $siteFileContents .= $this->transformValuesToIniFormat($settings);
+
+        $this->dumpSettingsToFile('siteaccess/' . $values['admin_siteaccess'] . '/site', $siteFileContents);
     }
 
     private function transformValuesToIniFormat($parameters)
@@ -103,8 +154,13 @@ class LegacyParametersFilesProcessor
             $content .= "[" . $group . "]\n";
             foreach ($settings as $key => $value) {
                 if (is_array($value)) {
-                    for ($i = 0; $i < count($value); $i++) {
-                        $content .= $key . "[]=" . $value[$i] . "\n";
+                    foreach ($value as $subkey => $subvalue) {
+                        if(is_numeric($subkey)) {
+                            $content .= $key . "[]=" . $subvalue . "\n";
+                        }
+                        else {
+                            $content .= $key . "[$subkey]=" . $subvalue . "\n";
+                        }
                     }
                 }
                 elseif ($value == "") {
