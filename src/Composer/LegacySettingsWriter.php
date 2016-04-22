@@ -48,7 +48,15 @@ class LegacySettingsWriter
     {
         foreach ($files['legacy_settings_files'] as $key => $yamlFiles) {
             if ($key === 'override') {
-                $this->processOverrideYamlFiles($yamlFiles, $this->values);
+                $this->processOverrideYamlFiles($yamlFiles);
+            }
+
+            if ($key === 'siteaccess') {
+                foreach ($files['legacy_settings_files']['siteaccess'] as $siteAccess => $siteAccessYamlFiles) {
+                    if ($siteAccess === '%admin_siteaccess%') {
+                        $this->processAdminSiteAccessYamlFiles($siteAccessYamlFiles);
+                    }
+                }
             }
         }
     }
@@ -57,9 +65,8 @@ class LegacySettingsWriter
      * Process all override files
      *
      * @param $yamlFiles
-     * @param $values
      */
-    private function processOverrideYamlFiles($yamlFiles, $values)
+    private function processOverrideYamlFiles($yamlFiles)
     {
         if (!$this->fs->exists('ezpublish_legacy/settings/override')) {
             $this->io->write(
@@ -69,9 +76,40 @@ class LegacySettingsWriter
         }
 
         foreach ($yamlFiles as $key => $file) {
-            $data = $this->transformYamlOverrideValuesToArray($file, $values);
+            $data = $this->transformYamlOverrideValuesToArray($file);
 
             $file = 'ezpublish_legacy/settings/override/' . $file . '.ini.append.php';
+            $fileExists = $this->fs->exists($file);
+            $this->io->write(
+                sprintf(
+                    '<info>%s the "%s" file</info>',
+                    $fileExists ? 'Updating' : 'Creating',
+                    $file
+                )
+            );
+
+            $this->fs->dumpFile(
+                $file,
+                $this->buildContentsForData($data)
+            );
+        }
+    }
+
+    private function processAdminSiteAccessYamlFiles($yamlFiles)
+    {
+        $admin_siteaccess = $this->values['admin_siteaccess'];
+
+        if (!$this->fs->exists('ezpublish_legacy/settings/siteacces/' . $admin_siteaccess)) {
+            $this->io->write(
+                sprintf('<info>Creating the ezpublish_legacy/settings/siteacess/%s directory</info>', $admin_siteaccess)
+            );
+            $this->fs->mkdir('ezpublish_legacy/settings/siteacess/' . $admin_siteaccess);
+        }
+
+        foreach ($yamlFiles as $key => $file) {
+            $data = $this->transformYamlOverrideValuesToArray($file);
+
+            $file = 'ezpublish_legacy/settings/siteaccess/' . $admin_siteaccess . '/' . $file . '.ini.append.php';
             $fileExists = $this->fs->exists($file);
             $this->io->write(
                 sprintf(
@@ -109,10 +147,9 @@ class LegacySettingsWriter
      * replacing parameters in yaml for the values in ezplatform.yml
      *
      * @param string $file
-     * @param array $values
      * @return array
      */
-    private function transformYamlOverrideValuesToArray($file, array $values)
+    private function transformYamlOverrideValuesToArray($file)
     {
         $settings = $this->yamlParser->parse(
             file_get_contents(__DIR__ . '/../Resources/config/settings/override/' . $file . '.yml')

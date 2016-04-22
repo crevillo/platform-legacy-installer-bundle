@@ -3,3 +3,4 @@ legacy_settings_files:
         - site
     siteaccess:
         %admin_siteaccess%:
+            - site

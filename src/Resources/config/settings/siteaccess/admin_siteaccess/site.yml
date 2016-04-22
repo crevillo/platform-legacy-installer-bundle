@@ -1,0 +1,27 @@
+SiteSettings:
+    DefaultPage: 'content/dashboard'
+    LoginPage: 'custom'
+
+SiteAccessSettings:
+    RequireUserLogin: 'true'
+    RelatedSiteAccessList:
+        - 'www'
+        - 'administrador'
+    ShowHiddenNodes: 'true'
+
+DesignSettings:
+    SiteDesign: 'administrador'
+    AdditionalSiteDesignList:
+        - 'admin'
+
+RegionalSettings:
+    Locale: 'esl-ES'
+    ContentObjectLocale: 'esl-ES'
+    ShowUntranslatedObjects: 'esl-ES'
+    SiteLanguageList:
+        - 'esl-ES'
+    TextTranslation: enabled
+
+ContentSettings:
+    CachedViewPreferences:
+        'full': 'admin_navigation_content=1;admin_children_viewmode=list;admin_list_limit=1'
