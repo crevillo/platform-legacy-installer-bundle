@@ -1,0 +1,6 @@
+legacy_settings_files:
+    override:
+        - site
+    siteaccess:
+        %admin_siteaccess%:
+            - site

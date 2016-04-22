@@ -1,0 +1,29 @@
+DatabaseSettings:
+    DatabaseImplementation: ezmysqli
+    Server: %database_host%
+    Port: %database_port%
+    User: %database_user%
+    Password: %database_password%
+    DatabaseName: %database_name%
+
+SiteSettings:
+    DefaultAccess: %frontend_siteaccess%
+    SiteList:
+        - %frontend_siteaccess%
+        - %admin_siteaccess%
+
+ExtensionSettings:
+    ActiveExtensions:
+        - ezjscore
+        - ezflow
+        - ezoe
+
+SiteAccessSettings:
+    CheckValidity: false
+    AvailableSiteAccessList:
+        - %frontend_siteaccess%
+        - %admin_siteaccess%
+    MatchOrder: uri
+
+DesignSettings:
+    DesignLocationCache: enabled
