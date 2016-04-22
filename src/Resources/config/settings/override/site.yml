@@ -16,6 +16,7 @@ ExtensionSettings:
     ActiveExtensions:
         - ezjscore
         - ezflow
+        - ezoe
 
 SiteAccessSettings:
     CheckValidity: false
