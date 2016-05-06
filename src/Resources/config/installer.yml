@@ -4,3 +4,4 @@ legacy_settings_files:
     siteaccess:
         %admin_siteaccess%:
             - site
+            - contentstructuremenu

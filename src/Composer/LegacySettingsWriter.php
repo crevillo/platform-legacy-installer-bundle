@@ -76,7 +76,7 @@ class LegacySettingsWriter
         }
 
         foreach ($yamlFiles as $key => $file) {
-            $data = $this->transformYamlOverrideValuesToArray($file);
+            $data = $this->transformYamlValuesToArray('override/' . $file);
 
             $file = 'ezpublish_legacy/settings/override/' . $file . '.ini.append.php';
             $fileExists = $this->fs->exists($file);
@@ -107,7 +107,7 @@ class LegacySettingsWriter
         }
 
         foreach ($yamlFiles as $key => $file) {
-            $data = $this->transformYamlOverrideValuesToArray($file);
+            $data = $this->transformYamlValuesToArray('siteaccess/admin_siteaccess/' . $file);
 
             $file = 'ezpublish_legacy/settings/siteaccess/' . $admin_siteaccess . '/' . $file . '.ini.append.php';
             $fileExists = $this->fs->exists($file);
@@ -149,10 +149,10 @@ class LegacySettingsWriter
      * @param string $file
      * @return array
      */
-    private function transformYamlOverrideValuesToArray($file)
+    private function transformYamlValuesToArray($file)
     {
         $settings = $this->yamlParser->parse(
-            file_get_contents(__DIR__ . '/../Resources/config/settings/override/' . $file . '.yml')
+            file_get_contents(__DIR__ . '/../Resources/config/settings/' . $file . '.yml')
         );
 
         array_walk_recursive($settings, array($this, 'convertParamsToValues'));
@@ -167,7 +167,7 @@ class LegacySettingsWriter
      */
     private function convertParamsToValues(&$item)
     {
-        $values = $this->values['parameters'];
+        $values = $this->values;
         $item = str_replace(
             array(
                 '%database_host%',
