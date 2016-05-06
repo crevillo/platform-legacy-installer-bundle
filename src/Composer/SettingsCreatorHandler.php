@@ -48,7 +48,7 @@ class SettingsCreatorHandler
         $parameters = self::getParametersValues();
         $settingsFiles = self::getFilesToWrite();
 
-        $settingsWriter = new LegacySettingsWriter($event, $parameters);
+        $settingsWriter = new LegacySettingsWriter($event, $parameters['parameters']);
         $settingsWriter->buildFiles($settingsFiles);
     }
 
