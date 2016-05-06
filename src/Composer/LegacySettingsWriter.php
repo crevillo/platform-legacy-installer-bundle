@@ -103,7 +103,7 @@ class LegacySettingsWriter
             $this->io->write(
                 sprintf('<info>Creating the ezpublish_legacy/settings/siteacess/%s directory</info>', $admin_siteaccess)
             );
-            $this->fs->mkdir('ezpublish_legacy/settings/siteacess/' . $admin_siteaccess);
+            $this->fs->mkdir('ezpublish_legacy/settings/siteaccess/' . $admin_siteaccess);
         }
 
         foreach ($yamlFiles as $key => $file) {
